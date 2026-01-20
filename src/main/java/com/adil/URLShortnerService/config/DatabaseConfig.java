@@ -1,7 +1,7 @@
 package com.adil.URLShortnerService.config;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
+import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -24,7 +24,8 @@ public class DatabaseConfig {
     @Bean
     @Primary
     public DataSource dataSource() {
-        DataSourceProperties properties = new DataSourceProperties();
+        DataSourceBuilder<?> builder = DataSourceBuilder.create();
+        builder.driverClassName("com.mysql.cj.jdbc.Driver");
         
         // Priority 1: Parse MYSQL_PUBLIC_URL if available (Railway)
         String mysqlPublicUrl = System.getenv("MYSQL_PUBLIC_URL");
@@ -46,11 +47,11 @@ public class DatabaseConfig {
                 String jdbcUrl = String.format("jdbc:mysql://%s:%d/%s?useSSL=true&requireSSL=false&allowPublicKeyRetrieval=true", 
                     host, port, database);
                 
-                properties.setUrl(jdbcUrl);
-                properties.setUsername(username);
-                properties.setPassword(password);
+                builder.url(jdbcUrl);
+                builder.username(username);
+                builder.password(password);
                 
-                return properties.initializeDataSourceBuilder().build();
+                return builder.build();
             } catch (Exception e) {
                 System.err.println("Failed to parse MYSQL_PUBLIC_URL: " + e.getMessage());
                 // Fall through to individual variables
@@ -96,18 +97,23 @@ public class DatabaseConfig {
             String jdbcUrl = String.format("jdbc:mysql://%s:%d/%s?useSSL=true&requireSSL=false&allowPublicKeyRetrieval=true", 
                 host, port, mysqlDatabase);
             
-            properties.setUrl(jdbcUrl);
-            properties.setUsername(mysqlUser);
-            properties.setPassword(mysqlPassword);
+            builder.url(jdbcUrl);
+            builder.username(mysqlUser);
+            builder.password(mysqlPassword);
             
-            return properties.initializeDataSourceBuilder().build();
+            return builder.build();
         }
         
         // Priority 3: Use application.properties defaults
-        properties.setUrl(defaultUrl + "?useSSL=true&requireSSL=false&allowPublicKeyRetrieval=true");
-        properties.setUsername(defaultUsername);
-        properties.setPassword(defaultPassword);
+        String url = defaultUrl;
+        if (!url.contains("?")) {
+            url += "?useSSL=true&requireSSL=false&allowPublicKeyRetrieval=true";
+        }
         
-        return properties.initializeDataSourceBuilder().build();
+        builder.url(url);
+        builder.username(defaultUsername);
+        builder.password(defaultPassword);
+        
+        return builder.build();
     }
 }
