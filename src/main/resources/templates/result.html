@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Shortened Successfully</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 700px;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #27ae60;
+            margin-bottom: 10px;
+            font-size: 2em;
+            text-align: center;
+        }
+        
+        .success-icon {
+            text-align: center;
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+        
+        .result-section {
+            margin: 30px 0;
+        }
+        
+        .label {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .url-box {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            word-break: break-all;
+            font-family: 'Courier New', monospace;
+            font-size: 1em;
+            color: #333;
+        }
+        
+        .short-url-box {
+            background: #e8f5e9;
+            border: 2px solid #27ae60;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            word-break: break-all;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1em;
+            color: #27ae60;
+            font-weight: 600;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .copy-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .copy-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .new-url-btn {
+            background: #f0f0f0;
+            color: #333;
+        }
+        
+        .new-url-btn:hover {
+            background: #e0e0e0;
+            transform: translateY(-2px);
+        }
+        
+        .info {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="success-icon">✅</div>
+        <h1>URL Shortened Successfully!</h1>
+        
+        <div class="result-section">
+            <div class="label">Original URL:</div>
+            <div class="url-box" th:text="${response.originalUrl}"></div>
+        </div>
+        
+        <div class="result-section">
+            <div class="label">Short URL:</div>
+            <div class="short-url-box" id="shortUrl" th:text="${response.shortUrl}"></div>
+        </div>
+        
+        <div class="button-group">
+            <button class="copy-btn" onclick="copyToClipboard(this)">Copy Short URL</button>
+            <button class="new-url-btn" onclick="window.location.href='/'">Shorten Another URL</button>
+        </div>
+        
+        <div class="info">
+            <p>Short Code: <strong th:text="${response.shortCode}"></strong></p>
+            <p th:if="${response.createdAt != null}">
+                Created: <span th:text="${#temporals.format(response.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
+            </p>
+        </div>
+    </div>
+    
+    <script>
+        function copyToClipboard(btn) {
+            const shortUrl = document.getElementById('shortUrl').textContent;
+            navigator.clipboard.writeText(shortUrl).then(function() {
+                const originalText = btn.textContent;
+                btn.textContent = 'Copied!';
+                btn.style.background = '#27ae60';
+                setTimeout(function() {
+                    btn.textContent = originalText;
+                    btn.style.background = '';
+                }, 2000);
+            }).catch(function(err) {
+                alert('Failed to copy: ' + err);
+            });
+        }
+    </script>
+</body>
+</html>
